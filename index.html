@@ -3,16 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ПанносГагариным by Druzba.Space</title>
+    <title>WebAR with MindAR.js</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 </head>
 <body>
     <a-scene mindar-image="imageTargetSrc: ./targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-        <a-entity mindar-image-target="targetIndex: 0">
+        <a-entity id="targetEntity" mindar-image-target="targetIndex: 0">
             <a-image src="./gagarin.jpg" position="0 0 0" height="1" width="1"></a-image>
         </a-entity>
     </a-scene>
+
+    <script>
+        let alpha = 0.2; // Коэффициент сглаживания
+        let lastPosition = {x: 0, y: 0, z: 0}; // Последняя позиция
+
+        AFRAME.registerComponent('smooth-movement', {
+            tick: function () {
+                let el = this.el;
+                let currentPosition = el.getAttribute('position');
+
+                // Экспоненциальное сглаживание
+                let smoothPos = {
+                    x: alpha * currentPosition.x + (1 - alpha) * lastPosition.x,
+                    y: alpha * currentPosition.y + (1 - alpha) * lastPosition.y,
+                    z: alpha * currentPosition.z + (1 - alpha) * lastPosition.z,
+                };
+
+                el.setAttribute('position', smoothPos);
+                lastPosition = smoothPos; // Обновление последней позиции
+            }
+        });
+
+        // Применение сглаживания к целевому объекту
+        document.querySelector('#targetEntity').setAttribute('smooth-movement', '');
+    </script>
 </body>
 </html>
